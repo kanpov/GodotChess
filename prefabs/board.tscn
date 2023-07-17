@@ -1,0 +1,10 @@
+[gd_scene load_steps=4 format=3 uid="uid://bywxty1n71seu"]
+
+[ext_resource type="Script" path="res://src/Board.cs" id="1_j3dwq"]
+[ext_resource type="Texture2D" uid="uid://cchwolv6oq0x7" path="res://graphics/squares/light_square_2.png" id="2_eqc0v"]
+[ext_resource type="Texture2D" uid="uid://bljd8dd0ufuvq" path="res://graphics/squares/dark_square_2.png" id="3_2avhm"]
+
+[node name="Board" type="Node2D"]
+script = ExtResource("1_j3dwq")
+LightSquare = ExtResource("2_eqc0v")
+DarkSquare = ExtResource("3_2avhm")

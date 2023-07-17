@@ -11,8 +11,15 @@ config_version=5
 [application]
 
 config/name="Godot Chess"
-config/features=PackedStringArray("4.1", "Mobile")
+run/main_scene="res://scenes/game.tscn"
+config/features=PackedStringArray("4.1", "C#", "Mobile")
 config/icon="res://icon.svg"
+
+[display]
+
+window/size/viewport_width=1800
+window/size/viewport_height=1200
+window/stretch/mode="canvas_items"
 
 [dotnet]
 

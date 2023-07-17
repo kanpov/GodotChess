@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://dx1jjc04ceghb"]
+
+[ext_resource type="Script" path="res://src/Game.cs" id="1_unbx4"]
+[ext_resource type="PackedScene" uid="uid://bywxty1n71seu" path="res://prefabs/board.tscn" id="2_8p6ri"]
+
+[node name="Game" type="Node2D"]
+script = ExtResource("1_unbx4")
+
+[node name="Board" parent="." instance=ExtResource("2_8p6ri")]
+position = Vector2(500, 300)

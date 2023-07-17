@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8y7wsa2i3o63"]
+
+[ext_resource type="Texture2D" uid="uid://cchwolv6oq0x7" path="res://graphics/squares/light_square_2.png" id="1_v0ad7"]
+
+[node name="Square" type="Sprite2D"]
+texture = ExtResource("1_v0ad7")
+region_enabled = true
+region_rect = Rect2(0, 0, 128, 128)
