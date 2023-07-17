@@ -5,6 +5,9 @@ namespace GodotChess;
 
 public partial class Piece : Node2D
 {
+    [Export] private Texture2D _whiteTexture;
+    [Export] private Texture2D _blackTexture;
+    
     private Sprite2D _sprite;
     
     public enum Type
@@ -13,6 +16,7 @@ public partial class Piece : Node2D
         Knight,
         Bishop,
         Queen,
+        Rook,
         King
     }
 
@@ -26,9 +30,9 @@ public partial class Piece : Node2D
         return false;
     }
 
-    public void Setup(Texture2D texture)
+    public void ColorAs(Side side)
     {
-        _sprite.Texture = texture;
+        _sprite.Texture = side == Side.White ? _whiteTexture : _blackTexture;
     }
 
     public static string EncodeTypeToNotation(Type type)
@@ -39,6 +43,7 @@ public partial class Piece : Node2D
             Type.Knight => "N",
             Type.Bishop => "B",
             Type.Queen => "Q",
+            Type.Rook => "R",
             Type.King => "K",
             _ => throw new ArgumentOutOfRangeException()
         };
@@ -49,9 +54,11 @@ public partial class Piece : Node2D
         return notation switch
         {
             null => Type.Pawn,
+            "P" => Type.Pawn, // alternative for pawns used in Board._pieceSetupMask
             "N" => Type.Knight,
             "B" => Type.Bishop,
             "Q" => Type.Queen,
+            "R" => Type.Rook,
             "K" => Type.King,
             _ => throw new ArgumentOutOfRangeException()
         };

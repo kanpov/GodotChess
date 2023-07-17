@@ -6,3 +6,6 @@
 script = ExtResource("1_pu3xd")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+z_index = 1
+scale = Vector2(0.8, 0.8)
+region_rect = Rect2(0, 0, 128, 128)

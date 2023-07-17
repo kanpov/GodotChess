@@ -6,8 +6,8 @@ namespace GodotChess;
 public record Move
 {
     public Piece.Type PieceType { get; init; }
-    public SquareLocation From { get; init; }
-    public SquareLocation To { get; init; }
+    public SquareLocation SourceLocation { get; init; }
+    public SquareLocation TargetLocation { get; init; }
     public bool IsCapture { get; init; }
     public bool IsCheck { get; init; }
     public bool IsMate { get; init; }
@@ -21,9 +21,9 @@ public record Move
         var pieceTypeStr = Piece.EncodeTypeToNotation(PieceType);
         if (pieceTypeStr != null) builder.Append(pieceTypeStr);
 
-        builder.Append(From.EncodeToNotation());
+        builder.Append(SourceLocation.EncodeToNotation());
         if (IsCapture) builder.Append('x');
-        builder.Append(To.EncodeToNotation());
+        builder.Append(TargetLocation.EncodeToNotation());
 
         if (IsPromotion)
         {
@@ -40,9 +40,9 @@ public record Move
     public static Move DecodeFromNotation(string notation)
     {
         var pieceType = Piece.DecodeTypeFromNotation(notation[0].ToString());
-        var from = SquareLocation.DecodeFromNotation(notation.Substring(1, 2));
+        var sourceLocation = SquareLocation.DecodeFromNotation(notation.Substring(1, 2));
         var isCapture = notation[3] == 'x';
-        var to = isCapture
+        var targetLocation = isCapture
             ? SquareLocation.DecodeFromNotation(notation.Substring(4, 2))
             : SquareLocation.DecodeFromNotation(notation.Substring(3, 2));
         var isCheck = notation.EndsWith('+');
@@ -60,7 +60,7 @@ public record Move
 
         return new Move
         {
-            PieceType = pieceType, From = from, To = to, IsCapture = isCapture, IsCheck = isCheck, IsMate = isMate,
+            PieceType = pieceType, SourceLocation = sourceLocation, TargetLocation = targetLocation, IsCapture = isCapture, IsCheck = isCheck, IsMate = isMate,
             IsPromotion = isPromotion, PromotedPieceType = promotedPieceType
         };
     }

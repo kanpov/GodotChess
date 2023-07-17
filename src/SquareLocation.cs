@@ -29,4 +29,9 @@ public record SquareLocation
             File = Board.Files.IndexOf(notation[1]) + 1
         };
     }
+
+    public static SquareLocation Of(int rank, int file)
+    {
+        return new SquareLocation { Rank = rank, File = file };
+    }
 }

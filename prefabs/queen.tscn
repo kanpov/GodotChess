@@ -1,0 +1,11 @@
+[gd_scene load_steps=5 format=3 uid="uid://2disbpo2408j"]
+
+[ext_resource type="PackedScene" uid="uid://8yv62pnsxs62" path="res://prefabs/piece.tscn" id="1_h0pj5"]
+[ext_resource type="Script" path="res://src/pieces/Queen.cs" id="2_yuk3h"]
+[ext_resource type="Texture2D" uid="uid://cfljwnkt4ekck" path="res://graphics/white_pieces/queen_white.png" id="3_dymhf"]
+[ext_resource type="Texture2D" uid="uid://blb5a5wiwwg0r" path="res://graphics/black_pieces/queen_black.png" id="4_13hq6"]
+
+[node name="Queen" instance=ExtResource("1_h0pj5")]
+script = ExtResource("2_yuk3h")
+_whiteTexture = ExtResource("3_dymhf")
+_blackTexture = ExtResource("4_13hq6")

@@ -5,6 +5,11 @@
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_unbx4")
+_moveDelay = 0.5
 
 [node name="Board" parent="." instance=ExtResource("2_8p6ri")]
-position = Vector2(500, 300)
+position = Vector2(448, 152)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+offset = Vector2(900, 600)
+ignore_rotation = false

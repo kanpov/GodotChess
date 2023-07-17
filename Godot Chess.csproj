@@ -4,4 +4,7 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <RootNamespace>GodotChess</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="src\pieces\" />
+  </ItemGroup>
 </Project>
