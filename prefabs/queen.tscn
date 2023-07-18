@@ -9,3 +9,4 @@
 script = ExtResource("2_yuk3h")
 _whiteTexture = ExtResource("3_dymhf")
 _blackTexture = ExtResource("4_13hq6")
+_type = 3

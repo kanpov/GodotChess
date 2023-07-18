@@ -1,24 +1,25 @@
 using System.Linq;
 using System.Text;
+using Godot;
 
 namespace GodotChess;
 
-public record Move
+public partial class Move : GodotObject
 {
-    public Piece.Type PieceType { get; init; }
+    public Piece.Type Type { get; init; }
     public SquareLocation SourceLocation { get; init; }
     public SquareLocation TargetLocation { get; init; }
     public bool IsCapture { get; init; }
     public bool IsCheck { get; init; }
     public bool IsMate { get; init; }
     public bool IsPromotion { get; init; }
-    public Piece.Type PromotedPieceType { get; init; }
+    public Piece.Type PromotedType { get; init; }
 
     public string EncodeToNotation()
     {
         var builder = new StringBuilder();
         
-        var pieceTypeStr = Piece.EncodeTypeToNotation(PieceType);
+        var pieceTypeStr = Piece.EncodeTypeToNotation(Type);
         if (pieceTypeStr != null) builder.Append(pieceTypeStr);
 
         builder.Append(SourceLocation.EncodeToNotation());
@@ -28,7 +29,7 @@ public record Move
         if (IsPromotion)
         {
             builder.Append('=');
-            builder.Append(Piece.EncodeTypeToNotation(PromotedPieceType));
+            builder.Append(Piece.EncodeTypeToNotation(PromotedType));
         }
 
         if (IsCheck) builder.Append('+');
@@ -60,8 +61,8 @@ public record Move
 
         return new Move
         {
-            PieceType = pieceType, SourceLocation = sourceLocation, TargetLocation = targetLocation, IsCapture = isCapture, IsCheck = isCheck, IsMate = isMate,
-            IsPromotion = isPromotion, PromotedPieceType = promotedPieceType
+            Type = pieceType, SourceLocation = sourceLocation, TargetLocation = targetLocation, IsCapture = isCapture, IsCheck = isCheck, IsMate = isMate,
+            IsPromotion = isPromotion, PromotedType = promotedPieceType
         };
     }
 }

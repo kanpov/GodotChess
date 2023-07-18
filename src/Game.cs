@@ -4,39 +4,39 @@ namespace GodotChess;
 
 public partial class Game : Node2D
 {
-    [Export] private float _moveDelay;
-    
+    [Export] private float _moveHalfDelay;
+
     private Board _board;
     private Camera2D _camera;
-    private bool _canMove;
-    private Side _sideMoving;
+
+    public static Side SideMoving { get; private set; }
+    public static int SideMultiplier = 1;
 
     public override void _Ready()
     {
         _board = GetNode<Board>("Board");
         _camera = GetNode<Camera2D>("Camera2D");
-        _sideMoving = Side.White;
-        _canMove = true;
+        
+        SideMoving = Side.White;
     }
 
-    public override void _Process(double delta)
+    public void ConfirmMove(Move move)
     {
-        if (Input.IsActionJustPressed("confirm_move") && _canMove)
+        _board.ApplyMove(move);
+        
+        var newRotation = SideMoving == Side.White ? Mathf.DegToRad(180f) : Mathf.DegToRad(0f);
+        _board.Flip(newRotation);
+        _camera.Rotation = newRotation;
+
+        if (SideMoving == Side.White)
         {
-            ConfirmMove();
+            SideMoving = Side.Black;
+            SideMultiplier = -1;
         }
-    }
-
-    private void ConfirmMove()
-    {
-        _canMove = false;
-        var tween = GetTree().CreateTween();
-        var newRotation = _sideMoving == Side.White ? Mathf.DegToRad(180f) : Mathf.DegToRad(0f);
-        tween.TweenProperty(_camera, "rotation", newRotation, _moveDelay);
-        tween.Finished += () =>
+        else
         {
-            _canMove = true;
-            _sideMoving = _sideMoving == Side.White ? Side.Black : Side.White;
-        };
+            SideMoving = Side.White;
+            SideMultiplier = 1;
+        }
     }
 }

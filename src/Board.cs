@@ -59,49 +59,42 @@ public partial class Board : Node2D
 
     private void Build()
     {
-        for (var rank = 1; rank <= 8; ++rank)
+        SquareLocation.RunOnAll(location =>
         {
-            for (var file = 1; file <= 8; ++file)
-            {
-                var square = _squarePrefab.Instantiate<Sprite2D>();
-                var location = SquareLocation.Of(rank, file);
-                square.Texture = location.FindInMask(_squareTypeMask) == ";" ? LightSquare : DarkSquare;
-                square.Position = location.AsRelativePosition();
-                AddChild(square);
+            var square = _squarePrefab.Instantiate<Sprite2D>();
+            square.Texture = location.FindInMask(_squareTypeMask) == ";" ? LightSquare : DarkSquare;
+            square.Position = location.AsRelativePosition();
+            AddChild(square);
 
-                _squares[rank - 1, file - 1] = new Square
-                    { RelativePosition = square.Position, IsOccupied = false, OccupyingPiece = null };
-            }
-        }
+            location.FindInMatrix(_squares) = new Square
+                { RelativePosition = square.Position, IsOccupied = false, OccupyingPiece = null };
+        });
     }
 
     private void AddPieces()
     {
-        for (var rank = 1; rank <= 8; ++rank)
+        SquareLocation.RunOnAll(location =>
         {
-            for (var file = 1; file <= 8; ++file)
+            var notation = location.FindInMask(_pieceSetupMask);
+            if (notation == ".") return;
+            
+            var pieceType = Piece.DecodeTypeFromNotation(notation);
+            var prefab = pieceType switch
             {
-                var notation = SquareLocation.Of(rank, file).FindInMask(_pieceSetupMask);
-                if (notation == ".") continue;
+                Piece.Type.Pawn => _pawnPrefab,
+                Piece.Type.Knight => _knightPrefab,
+                Piece.Type.Bishop => _bishopPrefab,
+                Piece.Type.Rook => _rookPrefab,
+                Piece.Type.Queen => _queenPrefab,
+                Piece.Type.King => _kingPrefab,
+                _ => throw new ArgumentOutOfRangeException()
+            };
                 
-                var pieceType = Piece.DecodeTypeFromNotation(notation);
-                var prefab = pieceType switch
-                {
-                    Piece.Type.Pawn => _pawnPrefab,
-                    Piece.Type.Knight => _knightPrefab,
-                    Piece.Type.Bishop => _bishopPrefab,
-                    Piece.Type.Rook => _rookPrefab,
-                    Piece.Type.Queen => _queenPrefab,
-                    Piece.Type.King => _kingPrefab,
-                    _ => throw new ArgumentOutOfRangeException()
-                };
-                
-                AddPiece(prefab, SquareLocation.Of(rank, file));
-            }
-        }
+            AddPiece(prefab, location, pieceType);
+        });
     }
 
-    private void AddPiece(PackedScene prefab, SquareLocation location)
+    private void AddPiece(PackedScene prefab, SquareLocation location, Piece.Type pieceType)
     {
         var piece = prefab.Instantiate<Piece>();
         var square = GetSquare(location);
@@ -110,6 +103,8 @@ public partial class Board : Node2D
         AddChild(piece);
         piece.Position = square.RelativePosition;
         piece.ColorAs(location.File < 5 ? Side.White : Side.Black);
+        piece.Location = location;
+        piece.PieceType = pieceType;
     }
 
     public Square GetSquare(SquareLocation location)
@@ -121,11 +116,31 @@ public partial class Board : Node2D
     {
         var source = GetSquare(move.SourceLocation);
         var piece = source.OccupyingPiece;
+        var target = GetSquare(move.TargetLocation);
+        
+        if (move.IsCapture)
+        {
+            target.OccupyingPiece.QueueFree();
+        }
+        
         source.IsOccupied = false;
         source.OccupyingPiece = null;
-        var target = GetSquare(move.TargetLocation);
         target.IsOccupied = true;
         target.OccupyingPiece = piece;
         piece.Position = target.RelativePosition;
+        piece.Location = move.TargetLocation;
+        piece.HasMoved = true;
+    }
+
+    public void Flip(float newRotation)
+    {
+        SquareLocation.RunOnAll(location =>
+        {
+            var square = GetSquare(location);
+            if (square.IsOccupied)
+            {
+                square.OccupyingPiece.Rotation = newRotation;
+            }
+        });
     }
 }

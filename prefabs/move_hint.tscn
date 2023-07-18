@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://bn3qaklv2xtwb"]
+
+[ext_resource type="Script" path="res://src/MoveHint.cs" id="1_fycst"]
+[ext_resource type="Texture2D" uid="uid://b6sqo85dbemi0" path="res://graphics/misc/move_hint.png" id="2_qdmjm"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_a5rjw"]
+radius = 20.025
+
+[node name="MoveHint" type="Area2D"]
+script = ExtResource("1_fycst")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(1, 1, 1, 0.498039)
+z_index = 2
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("2_qdmjm")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_a5rjw")
