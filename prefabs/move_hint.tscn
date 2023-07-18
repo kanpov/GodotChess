@@ -9,11 +9,12 @@ radius = 20.025
 [node name="MoveHint" type="Area2D"]
 script = ExtResource("1_fycst")
 
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
+shape = SubResource("CircleShape2D_a5rjw")
+
 [node name="Sprite2D" type="Sprite2D" parent="."]
-modulate = Color(1, 1, 1, 0.498039)
+modulate = Color(1, 1, 1, 0.27451)
 z_index = 2
 scale = Vector2(0.3, 0.3)
 texture = ExtResource("2_qdmjm")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("CircleShape2D_a5rjw")

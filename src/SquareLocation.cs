@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 
 namespace GodotChess;
@@ -76,15 +77,14 @@ public record SquareLocation
         }
     }
 
-    public static class Deltas
-    {
-        public static readonly SquareLocation North = Create(0, 1);
-        public static readonly SquareLocation South = Create(0, -1);
-        public static readonly SquareLocation East = Create(1, 0);
-        public static readonly SquareLocation West = Create(-1, 0);
-        public static readonly SquareLocation Northeast = Create(1, 1);
-        public static readonly SquareLocation Northwest = Create(-1, 1);
-        public static readonly SquareLocation Southeast = Create(1, -1);
-        public static readonly SquareLocation Southwest = Create(-1, -1);
-    }
+    // Simple deltas
+    public static readonly SquareLocation North = Create(0, 1);
+    public static readonly SquareLocation South = Create(0, -1);
+    public static readonly SquareLocation East = Create(1, 0);
+    public static readonly SquareLocation West = Create(-1, 0);
+    public static readonly SquareLocation Northeast = Create(1, 1);
+    public static readonly SquareLocation Northwest = Create(-1, 1);
+    public static readonly SquareLocation Southeast = Create(1, -1);
+    public static readonly SquareLocation Southwest = Create(-1, -1);
+    public static readonly List<SquareLocation> Diagonals = new() { Northeast, Northwest, Southeast, Southwest };
 }

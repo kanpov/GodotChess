@@ -4,25 +4,25 @@ namespace GodotChess.Pieces;
 
 public partial class Pawn : Piece
 {
-    protected override HashSet<MoveContext> GenerateMoveLocations()
+    protected override HashSet<MoveContext> GenerateMoves()
     {
         var locations = new HashSet<MoveContext>();
         
         // 1-square forward movement
-        WithDeltaLocation(SquareLocation.Deltas.North, location => AddIfNotCapturable(location, ref locations));
+        WithDeltaLocation(SquareLocation.North, location => AddIfNotCapturable(location, ref locations));
         // 2-square forward movement (one-time)
-        WithDeltaLocation(SquareLocation.Deltas.North * 2, location =>
+        WithDeltaLocation(SquareLocation.North * 2, location =>
         {
             if (!HasMoved) AddIfNotCapturable(location, ref locations);
         });
         
         // diagonal capture
-        WithDeltaLocation(SquareLocation.Deltas.Northeast, location => AddIfCapturable(location, ref locations));
-        WithDeltaLocation(SquareLocation.Deltas.Northwest, location => AddIfCapturable(location, ref locations));
+        WithDeltaLocation(SquareLocation.Northeast, location => AddIfCapturable(location, ref locations));
+        WithDeltaLocation(SquareLocation.Northwest, location => AddIfCapturable(location, ref locations));
 
         // en passant capture
-        AddEnPassant(SquareLocation.Deltas.East, SquareLocation.Deltas.Northeast, ref locations);
-        AddEnPassant(SquareLocation.Deltas.West, SquareLocation.Deltas.Northwest, ref locations);
+        AddEnPassant(SquareLocation.East, SquareLocation.Northeast, ref locations);
+        AddEnPassant(SquareLocation.West, SquareLocation.Northwest, ref locations);
         
         return locations;
     }

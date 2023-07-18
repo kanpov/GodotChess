@@ -10,12 +10,12 @@ public partial class Piece : Area2D
     [Export] private Texture2D _blackTexture;
 
     private Sprite2D _sprite;
-    private Side _side;
     private Game _game;
     private Node2D _hints;
     private PackedScene _hintPrefab;
 
     protected Board Board;
+    public Side Side { get; private set; }
     public int MoveAmount { get; set; }
     public SquareLocation Location { get; set; }
     public Type PieceType { get; set; }
@@ -49,32 +49,37 @@ public partial class Piece : Area2D
         InputEvent += OnClick;
     }
 
-    protected virtual HashSet<MoveContext> GenerateMoveLocations()
+    protected virtual HashSet<MoveContext> GenerateMoves()
     {
         return new HashSet<MoveContext>();
     }
 
-    protected void AddIfCapturable(SquareLocation location, ref HashSet<MoveContext> locations)
+    protected void AddIfCapturable(SquareLocation location, ref HashSet<MoveContext> moves)
     {
-        var square = Board.GetSquare(location);
-        
-        if (square.IsOccupied && square.OccupyingPiece._side != _side) // TODO: deny capture if king will be checked
+        if (Board.GetSquare(location).IsOccupied) // TODO: deny capture if king will be checked
         {
-            locations.Add(new MoveContext(location));
+            Add(location, ref moves);
         }
     }
 
-    protected void AddIfNotCapturable(SquareLocation location, ref HashSet<MoveContext> locations)
+    protected void AddIfNotCapturable(SquareLocation location, ref HashSet<MoveContext> moves)
     {
         if (!Board.GetSquare(location).IsOccupied) // TODO: deny capture if king will be checked
         {
-            locations.Add(new MoveContext(location));
+            Add(location, ref moves);
         }
     }
     
-    protected static void AddLocation(ref HashSet<MoveContext> locations, SquareLocation location)
+    protected bool Add(SquareLocation location, ref HashSet<MoveContext> moves)
     {
-        locations.Add(new MoveContext(location));
+        if (SquareLocation.IsInvalid(location)) return true;
+        
+        var square = Board.GetSquare(location);
+
+        if (square.IsOccupied && square.OccupyingPiece.Side == Side) return true;
+        
+        moves.Add(new MoveContext(location));
+        return false;
     }
 
     protected SquareLocation GetDeltaLocation(SquareLocation delta)
@@ -95,7 +100,7 @@ public partial class Piece : Area2D
     public void ColorAs(Side side)
     {
         _sprite.Texture = side == Side.White ? _whiteTexture : _blackTexture;
-        _side = side;
+        Side = side;
     }
 
     public void DeleteHints()
@@ -108,10 +113,10 @@ public partial class Piece : Area2D
 
     private void OnClick(Node _, InputEvent input, long _1)
     {
-        if (!input.IsPressed() || Game.SideMoving != _side) return;
+        if (!input.IsPressed() || Game.SideMoving != Side) return;
 
         DeleteHints();
-        var locations = GenerateMoveLocations();
+        var locations = GenerateMoves();
 
         foreach (var location in locations)
         {
