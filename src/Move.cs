@@ -9,7 +9,9 @@ public partial class Move : GodotObject
     public Piece.Type Type { get; init; }
     public SquareLocation SourceLocation { get; init; }
     public SquareLocation TargetLocation { get; init; }
+    public SquareLocation EnPassantLocation { get; init; }
     public bool IsCapture { get; init; }
+    public bool IsEnPassant { get; init; }
     public bool IsCheck { get; init; }
     public bool IsMate { get; init; }
     public bool IsPromotion { get; init; }

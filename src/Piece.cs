@@ -16,6 +16,7 @@ public partial class Piece : Area2D
     private PackedScene _hintPrefab;
 
     protected Board Board;
+    public int MoveAmount { get; set; }
     public SquareLocation Location { get; set; }
     public Type PieceType { get; set; }
     public bool HasMoved { get; set; }
@@ -30,6 +31,13 @@ public partial class Piece : Area2D
         King
     }
 
+    protected record MoveContext(SquareLocation Value, bool IsEnPassant = false, SquareLocation EnPassantLocation = null)
+    {
+        public SquareLocation Value { get; private init; } = Value;
+        public bool IsEnPassant { get; private init; } = IsEnPassant;
+        public SquareLocation EnPassantLocation { get; private init; } = EnPassantLocation;
+    }
+
     public override void _Ready()
     {
         _sprite = GetNode<Sprite2D>("Sprite2D");
@@ -41,30 +49,32 @@ public partial class Piece : Area2D
         InputEvent += OnClick;
     }
 
-    protected virtual HashSet<SquareLocation> GenerateMoveLocations()
+    protected virtual HashSet<MoveContext> GenerateMoveLocations()
     {
-        return new HashSet<SquareLocation>();
+        return new HashSet<MoveContext>();
     }
 
-    protected void AddIfCapturable(SquareLocation location, ref HashSet<SquareLocation> locations)
+    protected void AddIfCapturable(SquareLocation location, ref HashSet<MoveContext> locations)
     {
-        if (Board.GetSquare(location).IsOccupied) // TODO: deny capture if king will be checked
+        var square = Board.GetSquare(location);
+        
+        if (square.IsOccupied && square.OccupyingPiece._side != _side) // TODO: deny capture if king will be checked
         {
-            locations.Add(location);
+            locations.Add(new MoveContext(location));
         }
     }
 
-    protected void AddIfNotCapturable(SquareLocation location, ref HashSet<SquareLocation> locations)
+    protected void AddIfNotCapturable(SquareLocation location, ref HashSet<MoveContext> locations)
     {
         if (!Board.GetSquare(location).IsOccupied) // TODO: deny capture if king will be checked
         {
-            locations.Add(location);
+            locations.Add(new MoveContext(location));
         }
     }
     
-    protected static void AddLocation(ref HashSet<SquareLocation> locations, SquareLocation location)
+    protected static void AddLocation(ref HashSet<MoveContext> locations, SquareLocation location)
     {
-        locations.Add(location);
+        locations.Add(new MoveContext(location));
     }
 
     protected SquareLocation GetDeltaLocation(SquareLocation delta)
@@ -100,8 +110,6 @@ public partial class Piece : Area2D
     {
         if (!input.IsPressed() || Game.SideMoving != _side) return;
 
-        GD.Print("press");
-        
         DeleteHints();
         var locations = GenerateMoveLocations();
 
@@ -116,13 +124,13 @@ public partial class Piece : Area2D
         }
     }
 
-    private Move ConvertLocationToMove(SquareLocation targetLocation)
+    private Move ConvertLocationToMove(MoveContext context)
     {
-        var isCapture = Board.GetSquare(targetLocation).IsOccupied;
+        var isCapture = Board.GetSquare(context.Value).IsOccupied;
         // TODO: account for checks, mates and promotions
 
-        return new Move
-            { Type = PieceType, SourceLocation = Location, TargetLocation = targetLocation, IsCapture = isCapture };
+        return new Move { Type = PieceType, SourceLocation = Location, TargetLocation = context.Value,
+            IsCapture = isCapture, IsEnPassant = context.IsEnPassant, EnPassantLocation = context.EnPassantLocation };
     }
 
     public static string EncodeTypeToNotation(Type type)

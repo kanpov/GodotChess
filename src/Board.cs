@@ -67,7 +67,7 @@ public partial class Board : Node2D
             AddChild(square);
 
             location.FindInMatrix(_squares) = new Square
-                { RelativePosition = square.Position, IsOccupied = false, OccupyingPiece = null };
+                { Location = location, IsOccupied = false, OccupyingPiece = null };
         });
     }
 
@@ -101,7 +101,7 @@ public partial class Board : Node2D
         square.IsOccupied = true;
         square.OccupyingPiece = piece;
         AddChild(piece);
-        piece.Position = square.RelativePosition;
+        piece.Position = square.Location.AsRelativePosition();
         piece.ColorAs(location.File < 5 ? Side.White : Side.Black);
         piece.Location = location;
         piece.PieceType = pieceType;
@@ -122,14 +122,22 @@ public partial class Board : Node2D
         {
             target.OccupyingPiece.QueueFree();
         }
+
+        if (move.IsEnPassant)
+        {
+            var enPassantSquare = GetSquare(move.EnPassantLocation);
+            enPassantSquare.IsOccupied = false;
+            enPassantSquare.OccupyingPiece.QueueFree();
+        }
         
         source.IsOccupied = false;
         source.OccupyingPiece = null;
         target.IsOccupied = true;
         target.OccupyingPiece = piece;
-        piece.Position = target.RelativePosition;
+        piece.Position = target.Location.AsRelativePosition();
         piece.Location = move.TargetLocation;
         piece.HasMoved = true;
+        piece.MoveAmount++;
     }
 
     public void Flip(float newRotation)
