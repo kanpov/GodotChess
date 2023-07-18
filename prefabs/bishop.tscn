@@ -2,8 +2,8 @@
 
 [ext_resource type="PackedScene" uid="uid://8yv62pnsxs62" path="res://prefabs/piece.tscn" id="1_bwb3w"]
 [ext_resource type="Script" path="res://src/pieces/Bishop.cs" id="2_v46sr"]
-[ext_resource type="Texture2D" uid="uid://nfc0dqlo5v2v" path="res://graphics/white_pieces/bishop_white.png" id="3_s3imh"]
-[ext_resource type="Texture2D" uid="uid://coyi0s35c4n45" path="res://graphics/black_pieces/bishop_black.png" id="4_68701"]
+[ext_resource type="Texture2D" uid="uid://b68mms0l7bws4" path="res://graphics/white_pieces/bishop_white.png" id="3_s3imh"]
+[ext_resource type="Texture2D" uid="uid://bpns2m8swmrwk" path="res://graphics/black_pieces/bishop_black.png" id="4_68701"]
 
 [node name="Bishop" instance=ExtResource("1_bwb3w")]
 script = ExtResource("2_v46sr")

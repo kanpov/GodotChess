@@ -7,8 +7,8 @@ public partial class Board : Node2D
 {
     public const string Ranks = "abcdefgh";
     public const string Files = "12345678";
-    private const int SquarePixelSize = 128;
-    
+
+    // Read-only masks are indexed by file first, and then by rank!
     private readonly string[] _squareTypeMask =
     {
         ".;.;.;.;",
@@ -64,8 +64,9 @@ public partial class Board : Node2D
             for (var file = 1; file <= 8; ++file)
             {
                 var square = _squarePrefab.Instantiate<Sprite2D>();
-                square.Texture = _squareTypeMask[rank - 1][file - 1] == ';' ? DarkSquare : LightSquare;
-                square.Position = new Vector2(SquarePixelSize * (rank - 1), SquarePixelSize * (8 - file));
+                var location = SquareLocation.Of(rank, file);
+                square.Texture = location.FindInMask(_squareTypeMask) == ";" ? LightSquare : DarkSquare;
+                square.Position = location.AsRelativePosition();
                 AddChild(square);
 
                 _squares[rank - 1, file - 1] = new Square
@@ -80,7 +81,7 @@ public partial class Board : Node2D
         {
             for (var file = 1; file <= 8; ++file)
             {
-                var notation = _pieceSetupMask[rank - 1][file - 1].ToString();
+                var notation = SquareLocation.Of(rank, file).FindInMask(_pieceSetupMask);
                 if (notation == ".") continue;
                 
                 var pieceType = Piece.DecodeTypeFromNotation(notation);
@@ -113,8 +114,7 @@ public partial class Board : Node2D
 
     public Square GetSquare(SquareLocation location)
     {
-        location.Validate();
-        return _squares[location.Rank - 1, location.File - 1];
+        return location.FindInMatrix(_squares);
     }
 
     public void ApplyMove(Move move)
