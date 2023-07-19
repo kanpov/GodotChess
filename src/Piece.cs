@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using GodotChess.Pieces;
 
 namespace GodotChess;
 
@@ -16,7 +17,7 @@ public partial class Piece : Area2D
     private PackedScene _hintPrefab;
 
     protected Board Board;
-    private Side _side { get; set; }
+    public Side Side { get; set; }
     public int MoveAmount { get; set; }
     public SquareLocation Location { get; set; }
     public Type PieceType { get; set; }
@@ -90,7 +91,7 @@ public partial class Piece : Area2D
         
         var square = Board.GetSquare(location);
 
-        if (square.IsOccupied && square.OccupyingPiece._side == _side) return true;
+        if (square.IsOccupied && square.OccupyingPiece.Side == Side) return true;
         
         moves.Add(new MoveContext(location));
         return false;
@@ -98,7 +99,7 @@ public partial class Piece : Area2D
 
     protected SquareLocation GetDeltaLocation(SquareLocation delta)
     {
-        return Location + delta * Game.SideMultiplier;
+        return Location + delta * Game.SideInversion;
     }
     
     protected void WithDeltaLocation(SquareLocation delta, Action<SquareLocation> action)
@@ -114,7 +115,7 @@ public partial class Piece : Area2D
     public void ColorAs(Side side)
     {
         _sprite.Texture = side == Side.White ? _whiteTexture : _blackTexture;
-        _side = side;
+        Side = side;
     }
 
     public void DeleteHints()
@@ -127,15 +128,18 @@ public partial class Piece : Area2D
 
     private void OnClick(Node _, InputEvent input, long _1)
     {
-        if (!input.IsPressed() || Game.SideMoving != _side) return;
+        if (!input.IsPressed() || Game.SideMoving != Side || !Game.CanMove) return;
 
         DeleteHints();
-        var locations = RemoveDuplicateMoves(GenerateMoves());
+        var contexts = RemoveDuplicateMoves(GenerateMoves());
 
-        foreach (var location in locations)
+        foreach (var context in contexts)
         {
+            var move = ConvertContextToMove(context, Board, PieceType, Location);
+            if (King.IsSideChecked(Board, Side) && King.IsSideCheckedAfterMove(move, Board, Side)) continue;
+            if (King.IsSideCheckedAfterMove(move, Board, Side)) continue;
+            
             var hint = _hintPrefab.Instantiate<MoveHint>();
-            var move = ConvertLocationToMove(location);
             hint.HintedMove = move;
             hint.HintedPiece = this;
             hint.Position = move.TargetLocation.AsRelativePosition();
@@ -143,13 +147,15 @@ public partial class Piece : Area2D
         }
     }
 
-    private Move ConvertLocationToMove(MoveContext context)
+    protected static Move ConvertContextToMove(MoveContext context, Board board, Type pieceType, SquareLocation location)
     {
-        var isCapture = Board.GetSquare(context.Value).IsOccupied;
-        // TODO: account for checks, mates and promotions
-
-        return new Move { Type = PieceType, SourceLocation = Location, TargetLocation = context.Value,
-            IsCapture = isCapture, IsEnPassant = context.IsEnPassant, EnPassantLocation = context.EnPassantLocation };
+        // TODO: support promotions, checks and mates
+        return new Move
+        {
+            Type = pieceType, SourceLocation = location, TargetLocation = context.Value,
+            IsCapture = board.GetSquare(context.Value).IsOccupied, IsEnPassant = context.IsEnPassant,
+            EnPassantLocation = context.EnPassantLocation
+        };
     }
 
     private static HashSet<MoveContext> RemoveDuplicateMoves(IReadOnlyCollection<MoveContext> source)

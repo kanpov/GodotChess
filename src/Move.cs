@@ -12,8 +12,8 @@ public partial class Move : GodotObject
     public SquareLocation EnPassantLocation { get; init; }
     public bool IsCapture { get; init; }
     public bool IsEnPassant { get; init; }
-    public bool IsCheck { get; init; }
-    public bool IsMate { get; init; }
+    public bool IsCheck { get; set; }
+    public bool IsMate { get; set; }
     public bool IsPromotion { get; init; }
     public Piece.Type PromotedType { get; init; }
 
@@ -34,7 +34,7 @@ public partial class Move : GodotObject
             builder.Append(Piece.EncodeTypeToNotation(PromotedType));
         }
 
-        if (IsCheck) builder.Append('+');
+        if (IsCheck && !IsMate) builder.Append('+');
         if (IsMate) builder.Append('#');
 
         return builder.ToString();

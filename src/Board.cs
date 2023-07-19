@@ -112,7 +112,7 @@ public partial class Board : Node2D
         return location.FindInMatrix(_squares);
     }
 
-    public void ApplyMove(Move move, bool mock = false)
+    public void ApplyMove(Move move)
     {
         var source = GetSquare(move.SourceLocation);
         var piece = source.OccupyingPiece;
@@ -158,13 +158,10 @@ public partial class Board : Node2D
         piece.HasMoved = true;
         piece.MoveAmount++;
 
-        return new Move.ReversalContext(
-            HadPieceBeenMoved: hadPieceBeenMoved,
-            EnPassantPiece: enPassantPiece,
-            CapturedPiece: move.IsCapture ? capturedPiece : null);
+        return new Move.ReversalContext(hadPieceBeenMoved, enPassantPiece, move.IsCapture ? capturedPiece : null);
     }
 
-    public void RevertMove(Move move, Move.ReversalContext reversalContext)
+    public void RevertMockedMove(Move move, Move.ReversalContext reversalContext)
     {
         var source = GetSquare(move.SourceLocation);
         var target = GetSquare(move.TargetLocation);
