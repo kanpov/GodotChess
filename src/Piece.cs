@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 
 namespace GodotChess;
@@ -33,9 +34,9 @@ public partial class Piece : Area2D
 
     protected record MoveContext(SquareLocation Value, bool IsEnPassant = false, SquareLocation EnPassantLocation = null)
     {
-        public SquareLocation Value { get; private init; } = Value;
-        public bool IsEnPassant { get; private init; } = IsEnPassant;
-        public SquareLocation EnPassantLocation { get; private init; } = EnPassantLocation;
+        public SquareLocation Value { get; } = Value;
+        public bool IsEnPassant { get; } = IsEnPassant;
+        public SquareLocation EnPassantLocation { get; } = EnPassantLocation;
     }
 
     public override void _Ready()
@@ -116,7 +117,7 @@ public partial class Piece : Area2D
         if (!input.IsPressed() || Game.SideMoving != Side) return;
 
         DeleteHints();
-        var locations = GenerateMoves();
+        var locations = RemoveDuplicateMoves(GenerateMoves());
 
         foreach (var location in locations)
         {
@@ -137,6 +138,19 @@ public partial class Piece : Area2D
         return new Move { Type = PieceType, SourceLocation = Location, TargetLocation = context.Value,
             IsCapture = isCapture, IsEnPassant = context.IsEnPassant, EnPassantLocation = context.EnPassantLocation };
     }
+
+    private static HashSet<MoveContext> RemoveDuplicateMoves(IReadOnlyCollection<MoveContext> source)
+    {
+        var locations = source.Select(move => move.Value).ToHashSet();
+        var output = new HashSet<MoveContext>();
+
+        foreach (var location in locations)
+        {
+            output.Add(source.First(move => move.Value == location));
+        }
+
+        return output;
+    } 
 
     public static string EncodeTypeToNotation(Type type)
     {
