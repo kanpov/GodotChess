@@ -114,9 +114,6 @@ public partial class Board : Node2D
 
     public void ApplyMove(Move move, bool mock = false)
     {
-        // I. Mock the move, e.g. execute it on internal state (_squares)
-        MockMove(move);
-        // II. Apply the move graphically, e.g. delete piece nodes, change positions etc.
         var source = GetSquare(move.SourceLocation);
         var piece = source.OccupyingPiece;
         var target = GetSquare(move.TargetLocation);
@@ -132,6 +129,8 @@ public partial class Board : Node2D
         }
         
         piece.Position = target.Location.AsRelativePosition();
+        
+        MockMove(move);
     }
 
     public Move.ReversalContext MockMove(Move move)
