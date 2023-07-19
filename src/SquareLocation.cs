@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 
 namespace GodotChess;
 
-public record SquareLocation
+public record SquareLocation(int Rank, int File)
 {
-    public int Rank { get; private init; }
-    public int File { get; private init; }
+    public int Rank { get; } = Rank;
+    public int File { get; } = File;
 
     private const int SquarePixelSize = 128;
     private int RankIndex => Rank - 1;
@@ -38,22 +39,17 @@ public record SquareLocation
 
     public static SquareLocation DecodeFromNotation(string notation)
     {
-        return Create(Board.Ranks.IndexOf(notation[0]) + 1, Board.Files.IndexOf(notation[1]) + 1);
+        return new SquareLocation(Board.Ranks.IndexOf(notation[0]) + 1, Board.Files.IndexOf(notation[1]) + 1);
     }
 
     public static SquareLocation operator +(SquareLocation a, SquareLocation b)
     {
-        return Create(a.Rank + b.Rank, a.File + b.File);
+        return new SquareLocation(a.Rank + b.Rank, a.File + b.File);
     }
 
     public static SquareLocation operator *(SquareLocation a, int b)
     {
-        return Create(a.Rank * b, a.File * b);
-    }
-    
-    public static SquareLocation Create(int rank, int file)
-    {
-        return new SquareLocation { Rank = rank, File = file };
+        return new SquareLocation(a.Rank * b, a.File * b);
     }
     
     public static bool IsInvalid(SquareLocation location)
@@ -72,19 +68,20 @@ public record SquareLocation
         {
             for (var file = 1; file <= 8; ++file)
             {
-                action.Invoke(Create(rank, file));
+                action.Invoke(new SquareLocation(rank, file));
             }
         }
     }
 
-    // Simple deltas
-    public static readonly SquareLocation North = Create(0, 1);
-    public static readonly SquareLocation South = Create(0, -1);
-    public static readonly SquareLocation East = Create(1, 0);
-    public static readonly SquareLocation West = Create(-1, 0);
-    public static readonly SquareLocation Northeast = Create(1, 1);
-    public static readonly SquareLocation Northwest = Create(-1, 1);
-    public static readonly SquareLocation Southeast = Create(1, -1);
-    public static readonly SquareLocation Southwest = Create(-1, -1);
-    public static readonly List<SquareLocation> Diagonals = new() { Northeast, Northwest, Southeast, Southwest };
+    public static readonly SquareLocation North = new(0, 1);
+    public static readonly SquareLocation South = new(0, -1);
+    public static readonly SquareLocation East = new(1, 0);
+    public static readonly SquareLocation West = new(-1, 0);
+    public static readonly SquareLocation Northeast = new(1, 1);
+    public static readonly SquareLocation Northwest = new(-1, 1);
+    public static readonly SquareLocation Southeast = new(1, -1);
+    public static readonly SquareLocation Southwest = new(-1, -1);
+    public static readonly List<SquareLocation> DiagonalDeltas = new() { Northeast, Northwest, Southeast, Southwest };
+    public static readonly List<SquareLocation> PerpendicularDeltas = new() { North, South, East, West };
+    public static readonly List<SquareLocation> AllDeltas = DiagonalDeltas.Concat(PerpendicularDeltas).ToList();
 }

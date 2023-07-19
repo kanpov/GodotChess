@@ -4,28 +4,15 @@ namespace GodotChess.Pieces;
 
 public partial class Bishop : Piece
 {
-    protected override HashSet<MoveContext> GenerateMoves()
+    public override HashSet<MoveContext> GenerateMoves()
     {
         var moves = new HashSet<MoveContext>();
 
-        foreach (var diagonal in SquareLocation.Diagonals)
+        foreach (var delta in SquareLocation.DiagonalDeltas)
         {
-            AddMovesInDiagonal(diagonal, ref moves);
+            AddDirectionUntilObstructed(delta, ref moves);
         }
         
         return moves;
-    }
-
-    private void AddMovesInDiagonal(SquareLocation diagonal, ref HashSet<MoveContext> moves)
-    {
-        var multiplier = 0;
-        
-        while (true)
-        {
-            ++multiplier;
-            var location = GetDeltaLocation(diagonal * multiplier);
-
-            if (Add(location, ref moves) || Board.GetSquare(location).IsOccupied) break;
-        }
     }
 }

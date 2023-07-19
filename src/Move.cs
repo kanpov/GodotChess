@@ -67,4 +67,11 @@ public partial class Move : GodotObject
             IsPromotion = isPromotion, PromotedType = promotedPieceType
         };
     }
+
+    public record ReversalContext(bool HadPieceBeenMoved, Piece EnPassantPiece, Piece CapturedPiece)
+    {
+        public bool HadPieceBeenMoved { get; } = HadPieceBeenMoved;
+        public Piece EnPassantPiece { get; } = EnPassantPiece;
+        public Piece CapturedPiece { get; } = CapturedPiece;
+    }
 }

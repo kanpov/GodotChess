@@ -4,7 +4,7 @@ namespace GodotChess.Pieces;
 
 public partial class Pawn : Piece
 {
-    protected override HashSet<MoveContext> GenerateMoves()
+    public override HashSet<MoveContext> GenerateMoves()
     {
         var locations = new HashSet<MoveContext>();
         

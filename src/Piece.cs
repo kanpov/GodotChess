@@ -16,7 +16,7 @@ public partial class Piece : Area2D
     private PackedScene _hintPrefab;
 
     protected Board Board;
-    public Side Side { get; private set; }
+    private Side _side { get; set; }
     public int MoveAmount { get; set; }
     public SquareLocation Location { get; set; }
     public Type PieceType { get; set; }
@@ -32,7 +32,7 @@ public partial class Piece : Area2D
         King
     }
 
-    protected record MoveContext(SquareLocation Value, bool IsEnPassant = false, SquareLocation EnPassantLocation = null)
+    public record MoveContext(SquareLocation Value, bool IsEnPassant = false, SquareLocation EnPassantLocation = null)
     {
         public SquareLocation Value { get; } = Value;
         public bool IsEnPassant { get; } = IsEnPassant;
@@ -50,7 +50,7 @@ public partial class Piece : Area2D
         InputEvent += OnClick;
     }
 
-    protected virtual HashSet<MoveContext> GenerateMoves()
+    public virtual HashSet<MoveContext> GenerateMoves()
     {
         return new HashSet<MoveContext>();
     }
@@ -70,6 +70,19 @@ public partial class Piece : Area2D
             Add(location, ref moves);
         }
     }
+
+    protected void AddDirectionUntilObstructed(SquareLocation delta, ref HashSet<MoveContext> moves)
+    {
+        var distance = 0;
+
+        while (true)
+        {
+            distance++;
+            var location = GetDeltaLocation(delta * distance);
+
+            if (Add(location, ref moves) || Board.GetSquare(location).IsOccupied) return;
+        }
+    }
     
     protected bool Add(SquareLocation location, ref HashSet<MoveContext> moves)
     {
@@ -77,7 +90,7 @@ public partial class Piece : Area2D
         
         var square = Board.GetSquare(location);
 
-        if (square.IsOccupied && square.OccupyingPiece.Side == Side) return true;
+        if (square.IsOccupied && square.OccupyingPiece._side == _side) return true;
         
         moves.Add(new MoveContext(location));
         return false;
@@ -101,7 +114,7 @@ public partial class Piece : Area2D
     public void ColorAs(Side side)
     {
         _sprite.Texture = side == Side.White ? _whiteTexture : _blackTexture;
-        Side = side;
+        _side = side;
     }
 
     public void DeleteHints()
@@ -114,7 +127,7 @@ public partial class Piece : Area2D
 
     private void OnClick(Node _, InputEvent input, long _1)
     {
-        if (!input.IsPressed() || Game.SideMoving != Side) return;
+        if (!input.IsPressed() || Game.SideMoving != _side) return;
 
         DeleteHints();
         var locations = RemoveDuplicateMoves(GenerateMoves());

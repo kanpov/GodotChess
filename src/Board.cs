@@ -112,8 +112,11 @@ public partial class Board : Node2D
         return location.FindInMatrix(_squares);
     }
 
-    public void ApplyMove(Move move)
+    public void ApplyMove(Move move, bool mock = false)
     {
+        // I. Mock the move, e.g. execute it on internal state (_squares)
+        MockMove(move);
+        // II. Apply the move graphically, e.g. delete piece nodes, change positions etc.
         var source = GetSquare(move.SourceLocation);
         var piece = source.OccupyingPiece;
         var target = GetSquare(move.TargetLocation);
@@ -125,19 +128,72 @@ public partial class Board : Node2D
 
         if (move.IsEnPassant)
         {
+            GetSquare(move.EnPassantLocation).OccupyingPiece.QueueFree();
+        }
+        
+        piece.Position = target.Location.AsRelativePosition();
+    }
+
+    public Move.ReversalContext MockMove(Move move)
+    {
+        var source = GetSquare(move.SourceLocation);
+        var piece = source.OccupyingPiece;
+        var target = GetSquare(move.TargetLocation);
+
+        Piece enPassantPiece = null;
+        if (move.IsEnPassant)
+        {
             var enPassantSquare = GetSquare(move.EnPassantLocation);
             enPassantSquare.IsOccupied = false;
-            enPassantSquare.OccupyingPiece.QueueFree();
+            enPassantPiece = enPassantSquare.OccupyingPiece;
+            enPassantSquare.OccupyingPiece = null;
         }
         
         source.IsOccupied = false;
         source.OccupyingPiece = null;
+        var capturedPiece = target.OccupyingPiece;
         target.IsOccupied = true;
         target.OccupyingPiece = piece;
-        piece.Position = target.Location.AsRelativePosition();
         piece.Location = move.TargetLocation;
+        var hadPieceBeenMoved = piece.HasMoved;
         piece.HasMoved = true;
         piece.MoveAmount++;
+
+        return new Move.ReversalContext(
+            HadPieceBeenMoved: hadPieceBeenMoved,
+            EnPassantPiece: enPassantPiece,
+            CapturedPiece: move.IsCapture ? capturedPiece : null);
+    }
+
+    public void RevertMove(Move move, Move.ReversalContext reversalContext)
+    {
+        var source = GetSquare(move.SourceLocation);
+        var target = GetSquare(move.TargetLocation);
+
+        source.IsOccupied = true;
+        source.OccupyingPiece = target.OccupyingPiece;
+        source.OccupyingPiece.Location = move.SourceLocation;
+
+        if (move.IsCapture)
+        {
+            target.IsOccupied = true;
+            target.OccupyingPiece = reversalContext.CapturedPiece;
+        }
+        else
+        {
+            target.IsOccupied = false;
+            target.OccupyingPiece = null;
+        }
+
+        if (move.IsEnPassant)
+        {
+            var enPassantSquare = GetSquare(move.EnPassantLocation);
+            enPassantSquare.IsOccupied = true;
+            enPassantSquare.OccupyingPiece = reversalContext.EnPassantPiece;
+        }
+        
+        source.OccupyingPiece.MoveAmount--;
+        if (!reversalContext.HadPieceBeenMoved) source.OccupyingPiece.HasMoved = false;
     }
 
     public void Flip(float newRotation)
