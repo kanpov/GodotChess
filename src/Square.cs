@@ -1,5 +1,3 @@
-using Godot;
-
 namespace GodotChess;
 
 public record Square

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace GodotChess.Pieces;
 
 public partial class Queen : Piece

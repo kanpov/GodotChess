@@ -1,7 +1,3 @@
-using System.Linq;
-using System.Text;
-using Godot;
-
 namespace GodotChess;
 
 public partial class Move : GodotObject
@@ -20,12 +16,14 @@ public partial class Move : GodotObject
     public string EncodeToNotation()
     {
         var builder = new StringBuilder();
-        
+
         var pieceTypeStr = Piece.EncodeTypeToNotation(Type);
-        if (pieceTypeStr != null) builder.Append(pieceTypeStr);
+        if (pieceTypeStr != null)
+            builder.Append(pieceTypeStr);
 
         builder.Append(SourceLocation.EncodeToNotation());
-        if (IsCapture) builder.Append('x');
+        if (IsCapture)
+            builder.Append('x');
         builder.Append(TargetLocation.EncodeToNotation());
 
         if (IsPromotion)
@@ -34,8 +32,10 @@ public partial class Move : GodotObject
             builder.Append(Piece.EncodeTypeToNotation(PromotedType));
         }
 
-        if (IsCheck && !IsMate) builder.Append('+');
-        if (IsMate) builder.Append('#');
+        if (IsCheck && !IsMate)
+            builder.Append('+');
+        if (IsMate)
+            builder.Append('#');
 
         return builder.ToString();
     }
@@ -63,8 +63,14 @@ public partial class Move : GodotObject
 
         return new Move
         {
-            Type = pieceType, SourceLocation = sourceLocation, TargetLocation = targetLocation, IsCapture = isCapture, IsCheck = isCheck, IsMate = isMate,
-            IsPromotion = isPromotion, PromotedType = promotedPieceType
+            Type = pieceType,
+            SourceLocation = sourceLocation,
+            TargetLocation = targetLocation,
+            IsCapture = isCapture,
+            IsCheck = isCheck,
+            IsMate = isMate,
+            IsPromotion = isPromotion,
+            PromotedType = promotedPieceType
         };
     }
 

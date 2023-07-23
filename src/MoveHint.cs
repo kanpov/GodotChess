@@ -1,5 +1,3 @@
-using Godot;
-
 namespace GodotChess;
 
 public partial class MoveHint : Area2D
@@ -8,7 +6,7 @@ public partial class MoveHint : Area2D
     public Piece HintedPiece { get; set; }
 
     private Game _game;
-    
+
     public override void _Ready()
     {
         _game = GetNode<Game>("/root/Game");
@@ -17,8 +15,9 @@ public partial class MoveHint : Area2D
 
     private void OnClicked(Node _, InputEvent input, long _1)
     {
-        if (!input.IsPressed()) return;
-        
+        if (!input.IsPressed())
+            return;
+
         _game.ConfirmMove(HintedMove);
         HintedPiece.DeleteHints();
     }
