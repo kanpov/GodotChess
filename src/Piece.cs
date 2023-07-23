@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Godot;
 using GodotChess.Pieces;
 
 namespace GodotChess;
@@ -47,14 +43,11 @@ public partial class Piece : Area2D
         _game = GetNode<Game>("/root/Game");
         _hints = GetNode<Node2D>("/root/Game/Board/Hints");
         _hintPrefab = ResourceLoader.Load<PackedScene>("res://prefabs/move_hint.tscn");
-        
+
         InputEvent += OnClick;
     }
 
-    public virtual HashSet<MoveContext> GenerateMoves()
-    {
-        return new HashSet<MoveContext>();
-    }
+    public virtual HashSet<MoveContext> GenerateMoves() => new HashSet<MoveContext>();
 
     protected void AddIfCapturable(SquareLocation location, ref HashSet<MoveContext> moves)
     {
@@ -81,27 +74,27 @@ public partial class Piece : Area2D
             distance++;
             var location = GetDeltaLocation(delta * distance);
 
-            if (Add(location, ref moves) || Board.GetSquare(location).IsOccupied) return;
+            if (Add(location, ref moves) || Board.GetSquare(location).IsOccupied)
+                return;
         }
     }
-    
+
     protected bool Add(SquareLocation location, ref HashSet<MoveContext> moves)
     {
-        if (SquareLocation.IsInvalid(location)) return true;
-        
+        if (SquareLocation.IsInvalid(location))
+            return true;
+
         var square = Board.GetSquare(location);
 
-        if (square.IsOccupied && square.OccupyingPiece.Side == Side) return true;
-        
+        if (square.IsOccupied && square.OccupyingPiece.Side == Side)
+            return true;
+
         moves.Add(new MoveContext(location));
         return false;
     }
 
-    protected SquareLocation GetDeltaLocation(SquareLocation delta)
-    {
-        return Location + delta * Game.SideInversion;
-    }
-    
+    protected SquareLocation GetDeltaLocation(SquareLocation delta) => Location + delta * Game.SideInversion;
+
     protected void WithDeltaLocation(SquareLocation delta, Action<SquareLocation> action)
     {
         var result = GetDeltaLocation(delta);
@@ -111,7 +104,7 @@ public partial class Piece : Area2D
             action.Invoke(result);
         }
     }
-    
+
     public void ColorAs(Side side)
     {
         _sprite.Texture = side == Side.White ? _whiteTexture : _blackTexture;
@@ -128,7 +121,8 @@ public partial class Piece : Area2D
 
     private void OnClick(Node _, InputEvent input, long _1)
     {
-        if (!input.IsPressed() || Game.SideMoving != Side || !Game.CanMove) return;
+        if (!input.IsPressed() || Game.SideMoving != Side || !Game.CanMove)
+            return;
 
         DeleteHints();
         var contexts = RemoveDuplicateMoves(GenerateMoves());
@@ -136,9 +130,11 @@ public partial class Piece : Area2D
         foreach (var context in contexts)
         {
             var move = ConvertContextToMove(context, Board, PieceType, Location);
-            if (King.IsSideChecked(Board, Side) && King.IsSideCheckedAfterMove(move, Board, Side)) continue;
-            if (King.IsSideCheckedAfterMove(move, Board, Side)) continue;
-            
+            if (King.IsSideChecked(Board, Side) && King.IsSideCheckedAfterMove(move, Board, Side))
+                continue;
+            if (King.IsSideCheckedAfterMove(move, Board, Side))
+                continue;
+
             var hint = _hintPrefab.Instantiate<MoveHint>();
             hint.HintedMove = move;
             hint.HintedPiece = this;
@@ -147,16 +143,17 @@ public partial class Piece : Area2D
         }
     }
 
-    protected static Move ConvertContextToMove(MoveContext context, Board board, Type pieceType, SquareLocation location)
-    {
+    protected static Move ConvertContextToMove(MoveContext context, Board board, Type pieceType, SquareLocation location) =>
         // TODO: support promotions, checks and mates
-        return new Move
+        new Move
         {
-            Type = pieceType, SourceLocation = location, TargetLocation = context.Value,
-            IsCapture = board.GetSquare(context.Value).IsOccupied, IsEnPassant = context.IsEnPassant,
+            Type = pieceType,
+            SourceLocation = location,
+            TargetLocation = context.Value,
+            IsCapture = board.GetSquare(context.Value).IsOccupied,
+            IsEnPassant = context.IsEnPassant,
             EnPassantLocation = context.EnPassantLocation
         };
-    }
 
     private static HashSet<MoveContext> RemoveDuplicateMoves(IReadOnlyCollection<MoveContext> source)
     {
@@ -169,34 +166,28 @@ public partial class Piece : Area2D
         }
 
         return output;
-    } 
-
-    public static string EncodeTypeToNotation(Type type)
-    {
-        return type switch
-        {
-            Type.Pawn => null,
-            Type.Knight => "N",
-            Type.Bishop => "B",
-            Type.Queen => "Q",
-            Type.Rook => "R",
-            Type.King => "K",
-            _ => throw new ArgumentOutOfRangeException()
-        };
     }
 
-    public static Type DecodeTypeFromNotation(string notation)
+    public static string EncodeTypeToNotation(Type type) => type switch
     {
-        return notation switch
-        {
-            null => Type.Pawn,
-            "P" => Type.Pawn, // alternative for pawns used in Board._pieceSetupMask
-            "N" => Type.Knight,
-            "B" => Type.Bishop,
-            "Q" => Type.Queen,
-            "R" => Type.Rook,
-            "K" => Type.King,
-            _ => throw new ArgumentOutOfRangeException()
-        };
-    }
+        Type.Pawn => null,
+        Type.Knight => "N",
+        Type.Bishop => "B",
+        Type.Queen => "Q",
+        Type.Rook => "R",
+        Type.King => "K",
+        _ => throw new ArgumentOutOfRangeException()
+    };
+
+    public static Type DecodeTypeFromNotation(string notation) => notation switch
+    {
+        null => Type.Pawn,
+        "P" => Type.Pawn, // alternative for pawns used in Board._pieceSetupMask
+        "N" => Type.Knight,
+        "B" => Type.Bishop,
+        "Q" => Type.Queen,
+        "R" => Type.Rook,
+        "K" => Type.King,
+        _ => throw new ArgumentOutOfRangeException()
+    };
 }

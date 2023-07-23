@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-
 namespace GodotChess.Pieces;
 
 public partial class King : Piece
@@ -27,7 +24,7 @@ public partial class King : Piece
             board.RevertMockedMove(move, reversalContext);
             return true;
         }
-        
+
         board.RevertMockedMove(move, reversalContext);
         return false;
     }
@@ -41,24 +38,26 @@ public partial class King : Piece
             board.RevertMockedMove(move, reversalContext);
             return true;
         }
-        
+
         board.RevertMockedMove(move, reversalContext);
         return false;
     }
-    
+
     public static bool IsSideChecked(Board board, Side side)
     {
         var result = false;
-        
+
         SquareLocation.RunOnAll(location =>
         {
             var square = board.GetSquare(location);
 
-            if (!square.IsOccupied || square.OccupyingPiece.Side == side) return;
+            if (!square.IsOccupied || square.OccupyingPiece.Side == side)
+                return;
 
             var moves = square.OccupyingPiece.GenerateMoves();
 
-            if (!result) result = moves.Select(move => board.GetSquare(move.Value))
+            if (!result)
+                result = moves.Select(move => board.GetSquare(move.Value))
                 .Any(newSquare => newSquare.IsOccupied && newSquare.OccupyingPiece is King king && king.Side == side);
         });
 
@@ -73,7 +72,8 @@ public partial class King : Piece
             {
                 var square = board.GetSquare(new SquareLocation(rank, file));
 
-                if (!square.IsOccupied || square.OccupyingPiece is not { } piece || piece.Side != side) continue;
+                if (!square.IsOccupied || square.OccupyingPiece is not { } piece || piece.Side != side)
+                    continue;
 
                 if (piece.GenerateMoves()
                     .Select(context => ConvertContextToMove(context, board, piece.PieceType, piece.Location))

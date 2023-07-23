@@ -1,4 +1,9 @@
-using Godot;
+global using Godot;
+global using System;
+global using System.Linq;
+global using System.Text;
+global using System.Collections.Generic;
+
 using GodotChess.Pieces;
 
 namespace GodotChess;
@@ -20,7 +25,7 @@ public partial class Game : Node2D
         _board = GetNode<Board>("Board");
         _camera = GetNode<Camera2D>("Camera2D");
         _gameEndTimer = GetNode<Timer>("GameEndTimer");
-        
+
         SideMoving = Side.White;
         CanMove = true;
     }
@@ -45,8 +50,9 @@ public partial class Game : Node2D
             SideInversion = 1;
         }
 
-        if (!King.IsSideMated(_board, SideMoving)) return;
-        
+        if (!King.IsSideMated(_board, SideMoving))
+            return;
+
         CanMove = false;
         _gameEndTimer.Start();
         _gameEndTimer.Timeout += () => GetTree().Quit();

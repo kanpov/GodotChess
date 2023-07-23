@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-
 namespace GodotChess.Pieces;
 
 public partial class Knight : Piece
@@ -10,7 +7,7 @@ public partial class Knight : Piece
         new SquareLocation(-2, -1), new SquareLocation(1, 2), new SquareLocation(-1, 2),
         new SquareLocation(1, -2), new SquareLocation(-1, -2)
     };
-    
+
     public override HashSet<MoveContext> GenerateMoves()
     {
         var moves = new HashSet<MoveContext>();
@@ -19,7 +16,7 @@ public partial class Knight : Piece
         {
             Add(location, ref moves);
         }
-        
+
         return moves;
     }
 }

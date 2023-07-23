@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace GodotChess.Pieces;
 
 public partial class Rook : Piece
@@ -12,7 +10,7 @@ public partial class Rook : Piece
         {
             AddDirectionUntilObstructed(delta, ref moves);
         }
-        
+
         return moves;
     }
 }

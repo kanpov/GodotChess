@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Godot;
-
 namespace GodotChess;
 
 public record SquareLocation(int Rank, int File)
@@ -17,30 +12,23 @@ public record SquareLocation(int Rank, int File)
 
     public string FindInMask(string[] mask)
     {
-        if (IsInvalid(this)) throw new ArgumentOutOfRangeException();
+        if (IsInvalid(this))
+            throw new ArgumentOutOfRangeException();
         return mask[FileIndex][RankIndex].ToString();
     }
 
     public ref T FindInMatrix<T>(T[,] matrix)
     {
-        if (IsInvalid(this)) throw new ArgumentOutOfRangeException();
+        if (IsInvalid(this))
+            throw new ArgumentOutOfRangeException();
         return ref matrix[RankIndex, FileIndex];
     }
 
-    public Vector2 AsRelativePosition()
-    {
-        return new Vector2(SquarePixelSize * RankIndex, SquarePixelSize * FileIndexInWorld);
-    }
+    public Vector2 AsRelativePosition() => new Vector2(SquarePixelSize * RankIndex, SquarePixelSize * FileIndexInWorld);
 
-    public string EncodeToNotation()
-    {
-        return Board.Ranks[Rank - 1] + Board.Files[File - 1].ToString();
-    }
+    public string EncodeToNotation() => Board.Ranks[Rank - 1] + Board.Files[File - 1].ToString();
 
-    public static SquareLocation DecodeFromNotation(string notation)
-    {
-        return new SquareLocation(Board.Ranks.IndexOf(notation[0]) + 1, Board.Files.IndexOf(notation[1]) + 1);
-    }
+    public static SquareLocation DecodeFromNotation(string notation) => new SquareLocation(Board.Ranks.IndexOf(notation[0]) + 1, Board.Files.IndexOf(notation[1]) + 1);
 
     public static SquareLocation operator +(SquareLocation a, SquareLocation b)
     {
@@ -51,16 +39,10 @@ public record SquareLocation(int Rank, int File)
     {
         return new SquareLocation(a.Rank * b, a.File * b);
     }
-    
-    public static bool IsInvalid(SquareLocation location)
-    {
-        return location.Rank < 1 || location.Rank > 8 || location.File < 1 || location.File > 8;
-    }
 
-    public static bool IsValid(SquareLocation location)
-    {
-        return !IsInvalid(location);
-    }
+    public static bool IsInvalid(SquareLocation location) => location.Rank < 1 || location.Rank > 8 || location.File < 1 || location.File > 8;
+
+    public static bool IsValid(SquareLocation location) => !IsInvalid(location);
 
     public static void RunOnAll(Action<SquareLocation> action)
     {
